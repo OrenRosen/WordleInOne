@@ -91,21 +91,24 @@ function Game() {
 
   return (
     <div className="game">
-      <BoardContainer guess={guess}></BoardContainer>
+      <BoardContainer
+        guess={guess}
+        didEnterClicked={didEnterClicked}
+      ></BoardContainer>
       <Keyboard onClickLetter={onClickLetter}></Keyboard>
     </div>
   );
 }
 
-function BoardContainer({ guess }) {
+function BoardContainer({ guess, didEnterClicked }) {
   return (
     <div className="boardContainer">
-      <Board guess={guess}></Board>
+      <Board guess={guess} didEnterClicked={didEnterClicked}></Board>
     </div>
   );
 }
 
-function Board({ guess }) {
+function Board({ guess, didEnterClicked }) {
   const [currentBoardWidth, setBoardWidth] = useState(0);
   const [currentBoardHeight, setBoardHeight] = useState(0);
 
@@ -171,7 +174,7 @@ function Board({ guess }) {
 
   return (
     <div className="board" style={divStyle}>
-      <Row guess={guess}></Row>
+      <Row guess={guess} didEnterClicked={didEnterClicked}></Row>
       <Row></Row>
       <Row></Row>
       <Row></Row>
@@ -181,30 +184,63 @@ function Board({ guess }) {
   );
 }
 
-function Row({ guess }) {
+function Row({ guess, didEnterClicked }) {
   if (guess === undefined) {
     guess = [];
   }
 
   return (
     <div className="row">
-      <Tile letter={guess[0]}></Tile>
-      <Tile letter={guess[1]}></Tile>
-      <Tile letter={guess[2]}></Tile>
-      <Tile letter={guess[3]}></Tile>
-      <Tile letter={guess[4]}></Tile>
+      <Tile letter={guess[0]} didEnterClicked={didEnterClicked}></Tile>
+      <Tile letter={guess[1]} didEnterClicked={didEnterClicked}></Tile>
+      <Tile letter={guess[2]} didEnterClicked={didEnterClicked}></Tile>
+      <Tile letter={guess[3]} didEnterClicked={didEnterClicked}></Tile>
+      <Tile letter={guess[4]} didEnterClicked={didEnterClicked}></Tile>
     </div>
   );
 }
 
-function Tile({ letter }) {
+function Tile({ letter, didEnterClicked }) {
+  const [alreadyClickedEnter, setAlreadyClickedEnter] = useState(false);
+  const [won, setWon] = useState(false);
+
+  useEffect(() => {
+    if (alreadyClickedEnter) {
+      return;
+    }
+
+    if (didEnterClicked) {
+      let timeout = setTimeout(() => {
+        setWon(true);
+        setAlreadyClickedEnter(true);
+
+        return () => clearTimeout(timeout);
+      }, 2200);
+    }
+  }, [alreadyClickedEnter, didEnterClicked]);
+
+  if (didEnterClicked === undefined) {
+    didEnterClicked = false;
+  }
+
   if (letter === undefined) {
     letter = "";
   }
   let dataState = letter === "" ? "empty" : "tbd";
+  dataState = won ? "correct" : dataState;
+
+  let dataAnimation = didEnterClicked ? "flip" : "";
+  dataAnimation = won ? "pop" : dataAnimation;
+
+  let animationDelay = won ? "short" : "long";
 
   return (
-    <div className="tile" data-state={dataState}>
+    <div
+      className="tile"
+      data-state={dataState}
+      data-animation={dataAnimation}
+      animation-delay={animationDelay}
+    >
       {letter}
     </div>
   );
