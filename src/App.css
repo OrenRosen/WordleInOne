@@ -238,6 +238,22 @@ body {
   animation: pop 1s ease-in;
 }
 
+.tile[data-animation='bounce'] {
+  animation: bounce 0.2s ease-in-out;
+}
+
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes pop {
   from {
     transform: scale(0.7);
@@ -302,3 +318,4 @@ body {
 .row > div:nth-child(5)[animation-delay='short'] {
   animation-delay: 0.25s;
 }
+

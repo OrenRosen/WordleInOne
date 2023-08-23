@@ -1,11 +1,25 @@
 import "./App.css";
+import Scoreboard from "./Scoreboard";
 import React, { useState, useEffect } from "react";
 
 function App() {
+  const [showScoreboard, setShowscorebaord] = useState(false);
+
+  let statistics = loadInitialStatistics();
+
+  function didWin() {
+    increaseStatisticsAndSave(statistics);
+
+    setTimeout(() => {
+      setShowscorebaord(true);
+    }, 3100);
+  }
+
   return (
     <div className="gameContainer">
       <Header></Header>
-      <Game></Game>
+      <Game didWin={didWin}></Game>
+      {showScoreboard && <Scoreboard statistics={statistics} />}
     </div>
   );
 }
@@ -19,7 +33,7 @@ function Header() {
   );
 }
 
-function Game() {
+function Game({ didWin }) {
   const [guess, setGuess] = useState([]);
   const [didEnterClicked, setDidEnterClicked] = useState(false);
 
@@ -38,6 +52,7 @@ function Game() {
       return;
     }
 
+    didWin();
     setDidEnterClicked(true);
   };
 
@@ -57,12 +72,10 @@ function Game() {
       return;
     }
 
-    console.log("handle key up", keyVal);
     onClickLetter(keyVal);
   }
 
   function onClickLetter(letter) {
-    console.log("letter is:", letter);
     if (letter === "↩") {
       handleEnterClicked();
       return;
@@ -74,7 +87,6 @@ function Game() {
         return;
       }
 
-      console.log("Pooopoing");
       guessCopy.pop();
       setGuess(guessCopy);
       return;
@@ -85,7 +97,6 @@ function Game() {
     }
 
     guessCopy.push(letter);
-    console.log(guessCopy);
     setGuess(guessCopy);
   }
 
@@ -203,6 +214,7 @@ function Row({ guess, didEnterClicked }) {
 function Tile({ letter, didEnterClicked }) {
   const [alreadyClickedEnter, setAlreadyClickedEnter] = useState(false);
   const [won, setWon] = useState(false);
+  const [currentLetter, setCurrentLetter] = useState("");
 
   useEffect(() => {
     if (alreadyClickedEnter) {
@@ -233,6 +245,18 @@ function Tile({ letter, didEnterClicked }) {
   dataAnimation = won ? "pop" : dataAnimation;
 
   let animationDelay = won ? "short" : "long";
+
+  if (currentLetter === "" && letter !== "") {
+    dataAnimation = "bounce";
+    animationDelay = "no";
+    setTimeout(() => {
+      setCurrentLetter(letter);
+    }, 200);
+  } else {
+    if (currentLetter !== "" && letter === "") {
+      setCurrentLetter(letter);
+    }
+  }
 
   return (
     <div
@@ -308,3 +332,43 @@ function KeyboardRow({ letters, onClickLetter }) {
 }
 
 export default App;
+
+function loadInitialStatistics() {
+  let statistics = JSON.parse(localStorage.getItem("statistics"));
+  if (statistics === null) {
+    statistics = {
+      Played: 0,
+      Streak: 0,
+      MaxStreak: 0,
+      LastTimePlayed: new Date().toString(),
+    };
+  }
+
+  statistics.LastTimePlayed = new Date(statistics.LastTimePlayed);
+  if (isBeforeYesterday(statistics.LastTimePlayed)) {
+    statistics.Streak = 0;
+  }
+
+  return statistics;
+}
+
+function increaseStatisticsAndSave(statistics) {
+  statistics.Streak += 1;
+  statistics.Played += 1;
+  if (statistics.MaxStreak < statistics.Streak) {
+    statistics.MaxStreak += 1;
+  }
+  statistics.LastTimePlayed = new Date();
+
+  localStorage.setItem("statistics", JSON.stringify(statistics));
+}
+
+function isBeforeYesterday(date) {
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
+
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
+
+  return date < yesterday;
+}

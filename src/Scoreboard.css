@@ -1,0 +1,122 @@
+.scoreboard {
+  color: rgb(240, 240, 240);
+  background: #1b1b1e9b;;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  animation: bounce2 0.2s ease-in-out forwards;
+}
+
+@keyframes bounce2 {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scoreboard > div {
+  border-radius: 10px;
+  width: 420px;
+  height: 400px;
+  background: #0f0f0f;
+  padding: 40px;
+  margin: 110px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.statistics {
+  display: flex;
+  justify-content: center;
+}
+
+.statsCube {
+  width: 72px;
+  height: 70px;
+  margin: 5px;
+  padding: 10px;
+}
+
+.statNumber {
+  font-weight: 400;
+  font-size: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 30px;
+}
+
+.statText {
+  margin-top: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+}
+
+.dsitributionRow {
+  display: flex;
+  font-size: 12px;
+  line-height: 22px;
+  font-weight: bold;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.dsitributionRow div:nth-child(2) {
+  background: rgb(80, 81, 80);
+  margin-left: 5px;
+  margin: 1px;
+  padding-left: 4px;
+  padding-right: 4px;
+  display: flex;
+  justify-content: end;
+}
+
+.dsitributionRow div:nth-child(1) {
+  /* background: green; */
+  margin: px;
+  padding-left: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  display: flex;
+  justify-content: end;
+}
+
+.dsitributionRow.first div:nth-child(2) {
+  background: rgb(22, 180, 5);
+  width: 300px; 
+}
+
+.distribution-header {
+  margin-left: 20px;
+  margin-bottom: 5px;
+  width: 250px;
+}
+
+.distribution-rows {
+  width: fit-content;
+  /* width: 300px; */
+  
+}
+
+.you-win-header {
+  font-size: 20px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin-bottom: 100px;
+}
