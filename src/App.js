@@ -20,23 +20,92 @@ function Header() {
 }
 
 function Game() {
+  const [guess, setGuess] = useState([]);
+  const [didEnterClicked, setDidEnterClicked] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("keyup", handleKeyup);
+
+    if (didEnterClicked) {
+      window.removeEventListener("keyup", handleKeyup);
+    }
+
+    return () => window.removeEventListener("keyup", handleKeyup);
+  }, [didEnterClicked, guess]);
+
+  const handleEnterClicked = () => {
+    if (guess.length < 5 || didEnterClicked) {
+      return;
+    }
+
+    setDidEnterClicked(true);
+  };
+
+  function handleKeyup({ key }) {
+    var keyVal = "";
+    if (key === "Enter") {
+      keyVal = "↩";
+    }
+    if (key === "Backspace") {
+      keyVal = "<";
+    }
+    if (/^[A-Za-z]$/.test(key)) {
+      keyVal = key.toUpperCase();
+    }
+
+    if (keyVal === "") {
+      return;
+    }
+
+    console.log("handle key up", keyVal);
+    onClickLetter(keyVal);
+  }
+
+  function onClickLetter(letter) {
+    console.log("letter is:", letter);
+    if (letter === "↩") {
+      handleEnterClicked();
+      return;
+    }
+
+    let guessCopy = guess.slice();
+    if (letter === "<") {
+      if (guess.length === 0) {
+        return;
+      }
+
+      console.log("Pooopoing");
+      guessCopy.pop();
+      setGuess(guessCopy);
+      return;
+    }
+
+    if (guess.length >= 5) {
+      return;
+    }
+
+    guessCopy.push(letter);
+    console.log(guessCopy);
+    setGuess(guessCopy);
+  }
+
   return (
     <div className="game">
-      <BoardContainer></BoardContainer>
-      <Keyboard></Keyboard>
+      <BoardContainer guess={guess}></BoardContainer>
+      <Keyboard onClickLetter={onClickLetter}></Keyboard>
     </div>
   );
 }
 
-function BoardContainer() {
+function BoardContainer({ guess }) {
   return (
     <div className="boardContainer">
-      <Board></Board>
+      <Board guess={guess}></Board>
     </div>
   );
 }
 
-function Board() {
+function Board({ guess }) {
   const [currentBoardWidth, setBoardWidth] = useState(0);
   const [currentBoardHeight, setBoardHeight] = useState(0);
 
@@ -102,7 +171,7 @@ function Board() {
 
   return (
     <div className="board" style={divStyle}>
-      <Row></Row>
+      <Row guess={guess}></Row>
       <Row></Row>
       <Row></Row>
       <Row></Row>
@@ -112,23 +181,36 @@ function Board() {
   );
 }
 
-function Row() {
+function Row({ guess }) {
+  if (guess === undefined) {
+    guess = [];
+  }
+
   return (
     <div className="row">
-      <Tile></Tile>
-      <Tile></Tile>
-      <Tile></Tile>
-      <Tile></Tile>
-      <Tile></Tile>
+      <Tile letter={guess[0]}></Tile>
+      <Tile letter={guess[1]}></Tile>
+      <Tile letter={guess[2]}></Tile>
+      <Tile letter={guess[3]}></Tile>
+      <Tile letter={guess[4]}></Tile>
     </div>
   );
 }
 
-function Tile() {
-  return <div className="tile" data-state="empty"></div>;
+function Tile({ letter }) {
+  if (letter === undefined) {
+    letter = "";
+  }
+  let dataState = letter === "" ? "empty" : "tbd";
+
+  return (
+    <div className="tile" data-state={dataState}>
+      {letter}
+    </div>
+  );
 }
 
-function Keyboard() {
+function Keyboard({ onClickLetter }) {
   var firstRowLetters = ["Q", "w", "E", "R", "T", "Y", "U", "I", "O", "P"];
   var secondRowLetters = [
     "spacer",
@@ -147,14 +229,23 @@ function Keyboard() {
 
   return (
     <div className="keyboard">
-      <KeyboardRow letters={firstRowLetters}></KeyboardRow>
-      <KeyboardRow letters={secondRowLetters}></KeyboardRow>
-      <KeyboardRow letters={thirdRowLetters}></KeyboardRow>
+      <KeyboardRow
+        letters={firstRowLetters}
+        onClickLetter={onClickLetter}
+      ></KeyboardRow>
+      <KeyboardRow
+        letters={secondRowLetters}
+        onClickLetter={onClickLetter}
+      ></KeyboardRow>
+      <KeyboardRow
+        letters={thirdRowLetters}
+        onClickLetter={onClickLetter}
+      ></KeyboardRow>
     </div>
   );
 }
 
-function KeyboardRow({ letters }) {
+function KeyboardRow({ letters, onClickLetter }) {
   var buttons = letters.map((letter, index) => {
     if (letter === "spacer") {
       return <div className="spacer" key={index}></div>;
@@ -165,7 +256,14 @@ function KeyboardRow({ letters }) {
     }
 
     return (
-      <button className="key" key={letter} data-key={letter}>
+      <button
+        className="key"
+        key={letter}
+        data-key={letter}
+        onClick={() => {
+          onClickLetter(letter);
+        }}
+      >
         {letter}
       </button>
     );
