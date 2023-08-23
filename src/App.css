@@ -1,0 +1,240 @@
+/* Dark Theme Colors */
+.dark {
+  --color-tone-1: #ffffff;
+  --color-tone-2: #818384;
+  --color-tone-3: #565758;
+  --color-tone-4: #3a3a3c;
+  --color-tone-5: #272729;
+  --color-tone-6: #1a1a1b;
+  --color-tone-7: #121213;
+  --color-tone-8: #ffffff;
+  --color-tone-9: #424242;
+  --color-tone-10: #dfdfdf;
+  --color-tone-11: #dfdfdf;
+  --color-tone-12: #dfdfdf;
+  --color-nav-hover: #2f2f31;
+  --opacity-50: rgba(0, 0, 0, 0.5);
+  --error-background: var(--color-tone-7);
+  --icon-disabled: #59595a;
+}
+
+body {
+  height: 100%;
+  background-color: #121213;
+  margin: 0;
+  padding: 0;
+  /* Prevent scrollbar appearing on page transition */
+  overflow-y: hidden;
+  &.scrollable {
+    overflow-y: unset;
+  }
+}
+
+
+#root {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: scroll;
+
+  --header-height: 65px
+}
+
+@media only screen and (max-width: 768px) {
+  #root {
+    --header-height: 40px
+  }
+}
+
+.gameContainer {
+  /* background: red; */
+  height: calc(100% - 210px);
+  position: relative;
+}
+
+@media only screen and (max-width: 768px) {
+  .gameContainer {
+    height: 100%;
+    position: relative;
+  }
+}
+
+/* @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+} */
+
+.header {
+  /* background: green; */
+  height: var(--header-height);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 0px 16px;
+  color: #ffffff;
+  border-bottom: 1px solid #3a3a3c;
+}
+
+.headerTitle {
+  font-size: 35px;
+  text-align: center;
+  font-family: initial;
+  padding-left: 10px;
+}
+
+@media only screen and (max-width: 768px) {
+  .headerTitle {
+    font-size: 28px;
+  }
+}
+
+.headerTitle_in1 {
+  font-size: 10px;
+  padding-top: 15px;
+  padding-left: 2px;
+}
+@media only screen and (max-width: 768px) {
+  .headerTitle_in1 {
+    padding-top: 7px;
+  }
+}
+
+
+.game {
+  /* background: yellow; */
+  height: calc(100% - var(--header-height));
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.boardContainer {
+  /* background: purple; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.keyboard {
+  /* background: aqua; */
+  height: 200px;
+  margin: 0 8px;
+}
+
+@media only screen and (max-width: 768px) {
+  .keyboard {
+    /* background: aqua; */
+    height: 200px;
+    margin: 0 8px 10px;
+  } 
+}
+
+.board {
+  /* background: gray; */
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  grid-gap: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.row {
+  /* background: red; */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 5px;
+}
+
+.tile {
+  /* font-family: "nyt-franklin"; */
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: bold;
+  vertical-align: middle;
+  box-sizing: border-box;
+  color: #ffffff;
+  text-transform: uppercase;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.tile[data-state='tbd'] {
+  background-color: #121231;
+  border: 20px solid #565758;
+  color: var(--color-tone-1);
+}
+
+.tile::before {
+  content: '';
+  display: inline-block;
+  padding-bottom: 100%;
+}
+
+.keyboardRow {
+  display: flex;
+  width: 100%;
+  margin: 0 auto 8px;
+  touch-action: manipulation;
+}
+
+.key {
+  font-size: 1.25em;
+  font-weight: bold;
+  border: 0;
+  padding: 0;
+  margin: 0 6px 0 0;
+  height: 58px;
+  border-radius: 4px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: #818384;
+  color: #ffffff;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+}
+
+.spacer {
+  flex: 0.5;
+}
+
+.tile[data-state='empty'] {
+  border: 2px solid #3a3a3c;
+}
+.tile[data-state='tbd'] {
+  background-color: #121213;
+  border: 2px solid var(--color-tone-3);
+  color: var(--color-tone-1);
+}
+.tile[data-state='correct'] {
+  background-color: var(--color-correct);
+}
+.tile[data-state='present'] {
+  background-color: var(--color-present);
+}
+.tile[data-state='absent'] {
+  background-color: var(--color-absent);
+}
