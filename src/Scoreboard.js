@@ -1,7 +1,11 @@
 import "./Scoreboard.css";
 import React, { useRef } from "react";
 
-export default function Scoreboard({ statistics, handleCloseScoreBoard }) {
+export default function Scoreboard({
+  statistics,
+  handleCloseScoreBoard,
+  withFade,
+}) {
   const ref = useRef(null);
 
   function handleCloseScoreBoardLocal() {
@@ -11,7 +15,7 @@ export default function Scoreboard({ statistics, handleCloseScoreBoard }) {
   }
 
   return (
-    <div ref={ref} className="scoreboard">
+    <div ref={ref} className={`scoreboard ${withFade ? "fadeIn" : ""}`}>
       <div>
         <button
           className="closeScoreBoardButton"

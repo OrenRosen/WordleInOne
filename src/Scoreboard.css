@@ -165,3 +165,28 @@
       opacity: 0
   }
 }
+
+.fadeIn {
+  animation: FadeIn 3s linear forwards;
+}
+
+@keyframes FadeIn {
+  0% {
+    opacity: 0
+  }
+
+  95% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  98% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

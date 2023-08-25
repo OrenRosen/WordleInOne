@@ -6,7 +6,15 @@ import React, { useState, useEffect, useRef } from "react";
 const allowedWords = require("./AllowedWords.js");
 
 function App() {
-  const [showScoreboard, setShowscorebaord] = useState(false);
+  const guesses = loadCurrentGuesses();
+  const didAlreadyWin = guesses.lastDayWon.getDate() === getToday().getDate();
+  const currentGuess = didAlreadyWin
+    ? guesses.guesses[guesses.guesses.length - 1].split("")
+    : [];
+
+  const [showScoreboard, setShowscorebaord] = useState(didAlreadyWin);
+  const [showScoreboardWithAnimation, setShowScoreboardWithAnimation] =
+    useState(didAlreadyWin);
   const [didGuessWrong, setDidGuessWrong] = useState(false);
   const [didGuessRight, setDidGuessRight] = useState(false);
 
@@ -14,6 +22,12 @@ function App() {
 
   function handleGuessedWord(didGuessTrue) {
     if (didGuessTrue) {
+      increaseStatisticsAndSave(statistics);
+
+      setTimeout(() => {
+        setShowscorebaord(true);
+      }, 3600);
+
       setTimeout(() => {
         setDidGuessRight(true);
 
@@ -30,14 +44,6 @@ function App() {
     }
   }
 
-  function handleDidWin() {
-    increaseStatisticsAndSave(statistics);
-
-    setTimeout(() => {
-      setShowscorebaord(true);
-    }, 3600);
-  }
-
   function handleCloseScoreBoard() {
     setTimeout(() => {
       setShowscorebaord(false);
@@ -52,8 +58,8 @@ function App() {
     <div className="gameContainer">
       <Header handleShowScoreBoard={handleShowScoreBoard}></Header>
       <Game
-        handleDidWin={handleDidWin}
         handleGuessedWord={handleGuessedWord}
+        currentWonGuess={currentGuess}
       ></Game>
       {didGuessWrong && <div className="toast">"Not in the word list"</div>}
       {didGuessRight && <div className="toast">"Genius!"</div>}
@@ -61,6 +67,7 @@ function App() {
         <Scoreboard
           statistics={statistics}
           handleCloseScoreBoard={handleCloseScoreBoard}
+          withFade={showScoreboardWithAnimation}
         />
       )}
     </div>
@@ -79,10 +86,10 @@ function Header({ handleShowScoreBoard }) {
   );
 }
 
-function Game({ handleDidWin, handleGuessedWord }) {
-  const [guess, setGuess] = useState([]);
+function Game({ handleGuessedWord, currentWonGuess }) {
+  const [guess, setGuess] = useState(currentWonGuess);
   const [didEnterClicked, setDidEnterClicked] = useState(false);
-  const [didWin, setDidWin] = useState(false);
+  const [didWin, setDidWin] = useState(currentWonGuess !== "");
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);
@@ -108,9 +115,9 @@ function Game({ handleDidWin, handleGuessedWord }) {
       return;
     }
 
+    addGuess(guess);
     handleGuessedWord(true);
     setDidWin(true);
-    handleDidWin();
   };
 
   function handleKeyup({ key }) {
@@ -423,6 +430,29 @@ function KeyboardRow({ letters, onClickLetter }) {
 
 export default App;
 
+function loadCurrentGuesses() {
+  let guesses = JSON.parse(localStorage.getItem("guesses"));
+  if (guesses === null) {
+    guesses = {
+      lastDayWon: getYesterday(),
+      guesses: [],
+    };
+  } else {
+    let date = new Date(guesses.lastDayWon.toString());
+    guesses.lastDayWon = date;
+  }
+
+  return guesses;
+}
+
+function addGuess(guess) {
+  let guesses = loadCurrentGuesses();
+  guesses.guesses.push(guess.join(""));
+  guesses.lastDayWon = getToday();
+
+  localStorage.setItem("guesses", JSON.stringify(guesses));
+}
+
 function loadInitialStatistics() {
   let statistics = JSON.parse(localStorage.getItem("statistics"));
   if (statistics === null) {
@@ -454,13 +484,23 @@ function increaseStatisticsAndSave(statistics) {
 }
 
 function isBeforeYesterday(date) {
+  return date < getYesterday();
+}
+
+function getToday() {
   const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
-  const yesterday = new Date(currentDate);
-  yesterday.setDate(currentDate.getDate() - 1);
+  return currentDate;
+}
 
-  return date < yesterday;
+function getYesterday() {
+  const today = getToday();
+
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  return yesterday;
 }
 
 function isAllowedWord(guess) {
