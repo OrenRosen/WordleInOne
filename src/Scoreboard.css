@@ -138,6 +138,30 @@
 
 .distribution-rows {
   width: fit-content;
-  /* width: 300px; */
-  
+}
+
+.closeScoreBoardButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  left: 54%;
+  bottom: 5%;
+  color: white;
+  font-size: 15px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.close {
+  animation: FadeOut 200ms linear forwards;
+}
+
+@keyframes FadeOut {
+  0% {
+      opacity: 1
+  }
+
+  100% {
+      opacity: 0
+  }
 }

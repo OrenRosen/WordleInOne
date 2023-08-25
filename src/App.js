@@ -36,6 +36,12 @@ function App() {
     }, 3600);
   }
 
+  function handleCloseScoreBoard() {
+    setTimeout(() => {
+      setShowscorebaord(false);
+    }, 3600);
+  }
+
   return (
     <div className="gameContainer">
       <Header></Header>
@@ -45,7 +51,12 @@ function App() {
       ></Game>
       {didGuessWrong && <div className="toast">"Not in the word list"</div>}
       {didGuessRight && <div className="toast">"Genius!"</div>}
-      {showScoreboard && <Scoreboard statistics={statistics} />}
+      {showScoreboard && (
+        <Scoreboard
+          statistics={statistics}
+          handleCloseScoreBoard={handleCloseScoreBoard}
+        />
+      )}
     </div>
   );
 }

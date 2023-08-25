@@ -1,9 +1,24 @@
 import "./Scoreboard.css";
+import React, { useRef } from "react";
 
-export default function Scoreboard({ statistics }) {
+export default function Scoreboard({ statistics, handleCloseScoreBoard }) {
+  const ref = useRef(null);
+
+  function handleCloseScoreBoardLocal() {
+    const span = ref.current;
+    span.className = "scoreboard close";
+    handleCloseScoreBoard();
+  }
+
   return (
-    <div className="scoreboard">
+    <div ref={ref} className="scoreboard">
       <div>
+        <button
+          className="closeScoreBoardButton"
+          onClick={handleCloseScoreBoardLocal}
+        >
+          X
+        </button>
         <div className="you-win-header">You Win!</div>
         <Statistics statistics={statistics} />
         <Distribution gamesWon={statistics.Played} />
