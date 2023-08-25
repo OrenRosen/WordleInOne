@@ -1,13 +1,23 @@
 import "./App.css";
 import Scoreboard from "./Scoreboard";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+const allowedWords = require("./AllowedWords.js");
 
 function App() {
   const [showScoreboard, setShowscorebaord] = useState(false);
+  const [didGuessWrong, setDidGuessWrong] = useState(false);
 
   let statistics = loadInitialStatistics();
 
-  function didWin() {
+  function handleWrongWord() {
+    setDidGuessWrong(true);
+
+    setTimeout(() => {
+      setDidGuessWrong(false);
+    }, 1000);
+  }
+
+  function handleDidWin() {
     increaseStatisticsAndSave(statistics);
 
     setTimeout(() => {
@@ -18,7 +28,11 @@ function App() {
   return (
     <div className="gameContainer">
       <Header></Header>
-      <Game didWin={didWin}></Game>
+      <Game
+        handleDidWin={handleDidWin}
+        handleWrongWord={handleWrongWord}
+      ></Game>
+      {didGuessWrong && <div className="toast">"Not in the word list"</div>}
       {showScoreboard && <Scoreboard statistics={statistics} />}
     </div>
   );
@@ -33,27 +47,37 @@ function Header() {
   );
 }
 
-function Game({ didWin }) {
+function Game({ handleDidWin, handleWrongWord }) {
   const [guess, setGuess] = useState([]);
   const [didEnterClicked, setDidEnterClicked] = useState(false);
+  const [didWin, setDidWin] = useState(false);
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);
 
-    if (didEnterClicked) {
+    if (didWin) {
       window.removeEventListener("keyup", handleKeyup);
     }
 
     return () => window.removeEventListener("keyup", handleKeyup);
-  }, [didEnterClicked, guess]);
+  }, [didWin, guess]);
 
   const handleEnterClicked = () => {
-    if (guess.length < 5 || didEnterClicked) {
+    if (guess.length < 5 || didWin) {
       return;
     }
 
-    didWin();
     setDidEnterClicked(true);
+    setTimeout(() => {
+      setDidEnterClicked(false);
+    }, 100);
+    if (!isAllowedWord(guess)) {
+      handleWrongWord();
+      return;
+    }
+
+    setDidWin(true);
+    handleDidWin();
   };
 
   function handleKeyup({ key }) {
@@ -104,6 +128,7 @@ function Game({ didWin }) {
     <div className="game">
       <BoardContainer
         guess={guess}
+        didWin={didWin}
         didEnterClicked={didEnterClicked}
       ></BoardContainer>
       <Keyboard onClickLetter={onClickLetter}></Keyboard>
@@ -111,15 +136,19 @@ function Game({ didWin }) {
   );
 }
 
-function BoardContainer({ guess, didEnterClicked }) {
+function BoardContainer({ guess, didWin, didEnterClicked }) {
   return (
     <div className="boardContainer">
-      <Board guess={guess} didEnterClicked={didEnterClicked}></Board>
+      <Board
+        guess={guess}
+        didWin={didWin}
+        didEnterClicked={didEnterClicked}
+      ></Board>
     </div>
   );
 }
 
-function Board({ guess, didEnterClicked }) {
+function Board({ guess, didWin, didEnterClicked }) {
   const [currentBoardWidth, setBoardWidth] = useState(0);
   const [currentBoardHeight, setBoardHeight] = useState(0);
 
@@ -185,7 +214,11 @@ function Board({ guess, didEnterClicked }) {
 
   return (
     <div className="board" style={divStyle}>
-      <Row guess={guess} didEnterClicked={didEnterClicked}></Row>
+      <Row
+        guess={guess}
+        didWin={didWin}
+        didEnterClicked={didEnterClicked}
+      ></Row>
       <Row></Row>
       <Row></Row>
       <Row></Row>
@@ -195,33 +228,61 @@ function Board({ guess, didEnterClicked }) {
   );
 }
 
-function Row({ guess, didEnterClicked }) {
+function Row({ guess, didWin, didEnterClicked }) {
+  const ref = useRef(null);
+
   if (guess === undefined) {
     guess = [];
   }
 
+  if (didEnterClicked === undefined) {
+    didEnterClicked = false;
+  }
+
+  useEffect(() => {
+    if (guess.length === 0) {
+      return;
+    }
+
+    if (didEnterClicked) {
+      if (!isAllowedWord(guess)) {
+        const span = ref.current;
+        span.className = "row invalid";
+      }
+
+      setTimeout(() => {
+        const span = ref.current;
+        span.className = "row";
+      }, 600);
+    }
+  });
+
   return (
-    <div className="row">
-      <Tile letter={guess[0]} didEnterClicked={didEnterClicked}></Tile>
-      <Tile letter={guess[1]} didEnterClicked={didEnterClicked}></Tile>
-      <Tile letter={guess[2]} didEnterClicked={didEnterClicked}></Tile>
-      <Tile letter={guess[3]} didEnterClicked={didEnterClicked}></Tile>
-      <Tile letter={guess[4]} didEnterClicked={didEnterClicked}></Tile>
+    <div ref={ref} className="row">
+      <Tile letter={guess[0]} didWin={didWin}></Tile>
+      <Tile letter={guess[1]} didWin={didWin}></Tile>
+      <Tile letter={guess[2]} didWin={didWin}></Tile>
+      <Tile letter={guess[3]} didWin={didWin}></Tile>
+      <Tile letter={guess[4]} didWin={didWin}></Tile>
     </div>
   );
 }
 
-function Tile({ letter, didEnterClicked }) {
+function Tile({ letter, didWin }) {
   const [alreadyClickedEnter, setAlreadyClickedEnter] = useState(false);
   const [won, setWon] = useState(false);
   const [currentLetter, setCurrentLetter] = useState("");
+
+  if (didWin === undefined) {
+    didWin = false;
+  }
 
   useEffect(() => {
     if (alreadyClickedEnter) {
       return;
     }
 
-    if (didEnterClicked) {
+    if (didWin) {
       let timeout = setTimeout(() => {
         setWon(true);
         setAlreadyClickedEnter(true);
@@ -229,11 +290,7 @@ function Tile({ letter, didEnterClicked }) {
         return () => clearTimeout(timeout);
       }, 2200);
     }
-  }, [alreadyClickedEnter, didEnterClicked]);
-
-  if (didEnterClicked === undefined) {
-    didEnterClicked = false;
-  }
+  }, [alreadyClickedEnter, didWin]);
 
   if (letter === undefined) {
     letter = "";
@@ -241,7 +298,7 @@ function Tile({ letter, didEnterClicked }) {
   let dataState = letter === "" ? "empty" : "tbd";
   dataState = won ? "correct" : dataState;
 
-  let dataAnimation = didEnterClicked ? "flip" : "";
+  let dataAnimation = didWin ? "flip" : "";
   dataAnimation = won ? "pop" : dataAnimation;
 
   let animationDelay = won ? "short" : "long";
@@ -371,4 +428,8 @@ function isBeforeYesterday(date) {
   yesterday.setDate(currentDate.getDate() - 1);
 
   return date < yesterday;
+}
+
+function isAllowedWord(guess) {
+  return allowedWords[guess.join("").toLowerCase()];
 }
