@@ -7,42 +7,49 @@ const allowedWords = require("./AllowedWords.js");
 
 function App() {
   const guesses = loadCurrentGuesses();
-  const didAlreadyWin = guesses.lastDayWon.getDate() === getToday().getDate();
+  let didAlreadyWin = guesses.lastDayWon.getDate() === getToday().getDate();
   const currentGuess = didAlreadyWin
     ? guesses.guesses[guesses.guesses.length - 1].split("")
     : [];
+  const [withFade, setWithFade] = useState(didAlreadyWin);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setWithFade(false);
+    }, 2000);
+  }, []);
 
   const [showScoreboard, setShowscorebaord] = useState(didAlreadyWin);
-  const [showScoreboardWithAnimation, setShowScoreboardWithAnimation] =
-    useState(didAlreadyWin);
   const [didGuessWrong, setDidGuessWrong] = useState(false);
   const [didGuessRight, setDidGuessRight] = useState(false);
 
-  let statistics = loadInitialStatistics();
-
   function handleGuessedWord(didGuessTrue) {
-    if (didGuessTrue) {
-      increaseStatisticsAndSave(statistics);
-
-      setTimeout(() => {
-        setShowscorebaord(true);
-      }, 3600);
-
-      setTimeout(() => {
-        setDidGuessRight(true);
-
-        setTimeout(() => {
-          setDidGuessRight(false);
-        }, 2500);
-      }, 2500);
-    } else {
-      setDidGuessWrong(true);
-
-      setTimeout(() => {
-        setDidGuessWrong(false);
-      }, 1000);
-    }
+    didGuessTrue ? handleGuessedCorrectly() : handleGuessedWrong();
   }
+
+  const handleGuessedCorrectly = () => {
+    increaseStatisticsAndSave();
+
+    setTimeout(() => {
+      setShowscorebaord(true);
+    }, 3600);
+
+    setTimeout(() => {
+      setDidGuessRight(true);
+
+      setTimeout(() => {
+        setDidGuessRight(false);
+      }, 2500);
+    }, 2500);
+  };
+
+  const handleGuessedWrong = () => {
+    setDidGuessWrong(true);
+
+    setTimeout(() => {
+      setDidGuessWrong(false);
+    }, 1000);
+  };
 
   function handleCloseScoreBoard() {
     setTimeout(() => {
@@ -54,6 +61,7 @@ function App() {
     setShowscorebaord(true);
   }
 
+  let statistics = loadInitialStatistics();
   return (
     <div className="gameContainer">
       <Header handleShowScoreBoard={handleShowScoreBoard}></Header>
@@ -67,7 +75,7 @@ function App() {
         <Scoreboard
           statistics={statistics}
           handleCloseScoreBoard={handleCloseScoreBoard}
-          withFade={showScoreboardWithAnimation}
+          withFade={withFade}
         />
       )}
     </div>
@@ -89,7 +97,7 @@ function Header({ handleShowScoreBoard }) {
 function Game({ handleGuessedWord, currentWonGuess }) {
   const [guess, setGuess] = useState(currentWonGuess);
   const [didEnterClicked, setDidEnterClicked] = useState(false);
-  const [didWin, setDidWin] = useState(currentWonGuess !== "");
+  const [didWin, setDidWin] = useState(currentWonGuess.length === 5);
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyup);
@@ -472,7 +480,9 @@ function loadInitialStatistics() {
   return statistics;
 }
 
-function increaseStatisticsAndSave(statistics) {
+function increaseStatisticsAndSave() {
+  let statistics = loadInitialStatistics();
+
   statistics.Streak += 1;
   statistics.Played += 1;
   if (statistics.MaxStreak < statistics.Streak) {
