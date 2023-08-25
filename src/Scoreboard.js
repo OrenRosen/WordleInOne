@@ -37,7 +37,7 @@ function Statistics({ statistics }) {
 
 function Distribution({ gamesWon }) {
   return (
-    <div>
+    <div className="distribution">
       <div className="distribution-header">GUESS DISTRIBUTION</div>
       <div className="distribution-rows">
         <div className="dsitributionRow first">

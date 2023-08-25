@@ -6,15 +6,26 @@ const allowedWords = require("./AllowedWords.js");
 function App() {
   const [showScoreboard, setShowscorebaord] = useState(false);
   const [didGuessWrong, setDidGuessWrong] = useState(false);
+  const [didGuessRight, setDidGuessRight] = useState(false);
 
   let statistics = loadInitialStatistics();
 
-  function handleWrongWord() {
-    setDidGuessWrong(true);
+  function handleGuessedWord(didGuessTrue) {
+    if (didGuessTrue) {
+      setTimeout(() => {
+        setDidGuessRight(true);
 
-    setTimeout(() => {
-      setDidGuessWrong(false);
-    }, 1000);
+        setTimeout(() => {
+          setDidGuessRight(false);
+        }, 2500);
+      }, 2500);
+    } else {
+      setDidGuessWrong(true);
+
+      setTimeout(() => {
+        setDidGuessWrong(false);
+      }, 1000);
+    }
   }
 
   function handleDidWin() {
@@ -22,7 +33,7 @@ function App() {
 
     setTimeout(() => {
       setShowscorebaord(true);
-    }, 3100);
+    }, 3600);
   }
 
   return (
@@ -30,9 +41,10 @@ function App() {
       <Header></Header>
       <Game
         handleDidWin={handleDidWin}
-        handleWrongWord={handleWrongWord}
+        handleGuessedWord={handleGuessedWord}
       ></Game>
       {didGuessWrong && <div className="toast">"Not in the word list"</div>}
+      {didGuessRight && <div className="toast">"Genius!"</div>}
       {showScoreboard && <Scoreboard statistics={statistics} />}
     </div>
   );
@@ -47,7 +59,7 @@ function Header() {
   );
 }
 
-function Game({ handleDidWin, handleWrongWord }) {
+function Game({ handleDidWin, handleGuessedWord }) {
   const [guess, setGuess] = useState([]);
   const [didEnterClicked, setDidEnterClicked] = useState(false);
   const [didWin, setDidWin] = useState(false);
@@ -72,10 +84,11 @@ function Game({ handleDidWin, handleWrongWord }) {
       setDidEnterClicked(false);
     }, 100);
     if (!isAllowedWord(guess)) {
-      handleWrongWord();
+      handleGuessedWord(false);
       return;
     }
 
+    handleGuessedWord(true);
     setDidWin(true);
     handleDidWin();
   };
@@ -422,7 +435,7 @@ function increaseStatisticsAndSave(statistics) {
 
 function isBeforeYesterday(date) {
   const currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
+  currentDate.setHours(0, 0, 0, 0);
 
   const yesterday = new Date(currentDate);
   yesterday.setDate(currentDate.getDate() - 1);
