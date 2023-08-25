@@ -1,4 +1,6 @@
 import "./App.css";
+import scoreboardIcon from "./scoreboard.svg";
+
 import Scoreboard from "./Scoreboard";
 import React, { useState, useEffect, useRef } from "react";
 const allowedWords = require("./AllowedWords.js");
@@ -39,12 +41,16 @@ function App() {
   function handleCloseScoreBoard() {
     setTimeout(() => {
       setShowscorebaord(false);
-    }, 3600);
+    }, 100);
+  }
+
+  function handleShowScoreBoard() {
+    setShowscorebaord(true);
   }
 
   return (
     <div className="gameContainer">
-      <Header></Header>
+      <Header handleShowScoreBoard={handleShowScoreBoard}></Header>
       <Game
         handleDidWin={handleDidWin}
         handleGuessedWord={handleGuessedWord}
@@ -61,9 +67,12 @@ function App() {
   );
 }
 
-function Header() {
+function Header({ handleShowScoreBoard }) {
   return (
     <div className="header">
+      <button className="scoreBoardButton" onClick={handleShowScoreBoard}>
+        <img className="scoreBoardIcon" src={scoreboardIcon} alt="Your Icon" />
+      </button>
       <div className="headerTitle">Wordle</div>
       <div className="headerTitle_in1">(in 1)</div>
     </div>

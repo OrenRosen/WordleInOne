@@ -389,3 +389,18 @@ body {
       opacity: 0;
     }
 }
+
+.scoreBoardButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .scoreBoardIcon {
+    width: 24px;
+  }
+}
